@@ -25,15 +25,12 @@ public class AllisonEckhartScript : MonoBehaviour
 
         if (alreadyRan)
             return;
-        if (transform.parent != null && !Application.isEditor)
-        {
-            for (int i = 0; i < transform.parent.childCount; i++)
-            {
-                var gameObject = transform.parent.GetChild(i).gameObject;
-                var comp = gameObject.GetComponent<KMBombModule>();
-                ProcessModule(comp);
-            }
-        }
+        string sn = BombInfo.GetSerialNumber();
+        KMBombModule[] mods = FindObjectsOfType<KMBombModule>()
+                            .Where(x => x.GetComponent<KMBombInfo>() != null && x.GetComponent<KMBombInfo>().GetSerialNumber() == sn)
+                            .ToArray();
+        foreach (var mod in mods)
+            ProcessModule(mod);
         alreadyRan = true;
     }
     private void OnDestroy() {
