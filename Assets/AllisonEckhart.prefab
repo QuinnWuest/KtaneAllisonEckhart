@@ -254,7 +254,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShaderNames:
-  - Mobile/Diffuse
+  - KT/Mobile/DiffuseTint
 --- !u!114 &114736839973184490
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -281,7 +281,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ModuleType: AllisonEckhart
-  ModuleDisplayName: AllisonEckhart
+  ModuleDisplayName: Allison Eckhart
   RequiresTimerVisibility: 0
 --- !u!114 &114960229496981458
 MonoBehaviour:
