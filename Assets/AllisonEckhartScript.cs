@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Rnd = UnityEngine.Random;
 
 public class AllisonEckhartScript : MonoBehaviour
 {
     public KMBombModule Module;
-    public KMBombInfo BombInfo;
+    public KMBombInfo Bomb;
     public KMAudio Audio;
 
     private int _moduleId;
@@ -15,36 +16,84 @@ public class AllisonEckhartScript : MonoBehaviour
     private static bool alreadyRan = false;
     private static List<KMBombModule> _foundMods = new List<KMBombModule>();
     private bool debugMode = true;
-
-    private static readonly string[] _prompts = new string[]
-    {
-
-    };
+    private int solution;
 
     private void Start()
     {
         _moduleId = _moduleIdCounter++;
-        Generate();
+        GenerateAllisonEckhart();
+        GeneratePrompt();
     }
 
-    private void Generate()
+    private void GeneratePrompt(int count) 
+    {
+        string[] starts = "INPUT_COMPUTE_CALCULATE_PUNCH IN_TYPE IN_DETERMINE_EVALUATE_QUANTIFY".Split('_');
+        int[] numbers = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 30, 40, 50, 60, 70, 80, 90 };
+        string[] numberWords = "ZERO_ONE_TWO_THREE_FOUR_FIVE_SIX_SEVEN_EIGHT_NINE_TEN_ELEVEN_TWELVE_THIRTEEN_FOURTEEN_FIFTEEN_SIXTEEN_SEVENTEEN_EIGHTEEN_NINETEEN_TWENTY_THIRTY_FORTY_FIFTY_SIXTY_SEVENTY_EIGHTY_NINETY".Split('_');
+    
+        string promptText = starts.PickRandom() + " ";
+
+        int batteryCount = Bomb.GetBatteryCount();
+        int holderCount = Bomb.GetBatteryHolderCount();
+
+        
+
+        /* vomit
+
+        INPUT_COMPUTE_CALCULATE_PUNCH IN_TYPE IN_DETERMINE_EVALUATE_QUANTIFY
+        ZERO_ONE_TWO_THREE_FOUR_FIVE_SIX_SEVEN_EIGHT_NINE_TEN_ELEVEN_TWELVE_THIRTEEN_FOURTEEN_FIFTEEN_SIXTEEN_SEVENTEEN_EIGHTEEN_NINETEEN_TWENTY_THIRTY_FORTY_FIFTY_SIXTY_SEVENTY_EIGHTY_NINETY
+        BATTERY COUNT_BATTERY HOLDER COUNT_D BATTERY COUNT_AA BATTERY COUNT_INDICATOR COUNT_LIT INDICATOR COUNT_UNLIT INDICATOR COUNT_PORT COUNT_PORT PLATE COUNT_FIRST DIGIT OF SERIAL NUMBER_LAST DIGIT OF SERIAL NUMBER_PORT TYPE COUNT_EMPTY PORT PLATE COUNT_SECOND DIGIT OF SERIAL NUMBER_THIRD DIGIT OF SERIAL NUMBER_
+        PLUS_MINUS_TIMES_DIVIDED BY_TO THE POWER OF_MODULO_LOGICAL AND_LOGICAL OR_LOGICAL EXCLUSIVE OR_LEFT SHIFTED_RIGHT SHIFTED
+
+        {{BATTERY} COUNT}
+        {{BATTERY HOLDER} COUNT}
+        {{{D} BATTERY} COUNT}
+        {{{AA} BATTERY} COUNT}
+        {{INDICATOR} COUNT}
+        {{{LIT} INDICATOR} COUNT}
+        {{{UNLIT} INDICATOR} COUNT}
+        {{PORT} COUNT}
+        {{PORT PLATE} COUNT}
+        {{FIRST} DIGIT OF SERIAL NUMBER}
+        {{LAST} DIGIT OF SERIAL NUMBER}
+
+        (i) calc (THEN SUBMIT/CLEAR)
+        i=
+
+        COMPUTE [ALPHABETIC POSITION OF [LAST] LETTER IN THE [SERIAL NUMBER]] [MULTIPLIED BY] [NUMBER OF [UNLIT] [INDICATORS] [CONTAINING A VOWEL]]
+
+        COMPUTE {}
+
+        */
+    }
+
+    private void GenerateAllisonEckhart()
     {
         if (alreadyRan)
             return;
-        string sn = BombInfo.GetSerialNumber();
+        string sn = Bomb.GetSerialNumber();
         KMBombModule[] mods = FindObjectsOfType<KMBombModule>().Where(x => x.GetComponent<KMBombInfo>() != null && x.GetComponent<KMBombInfo>().GetSerialNumber() == sn).ToArray();
+        List<string> names = new List<string> {  };
         for (int i = 0; i < mods.Length; i++)
         {
-            var name = mods[i].ModuleDisplayName;
-            if (!Data.data.ContainsKey(name))
-                Debug.LogFormat("<Allison Eckhart #{0}> Module name {1} not found in data dictionary.", _moduleId, name);
-            else
+            string name = mods[i].ModuleDisplayName;
+            if (Data.data.ContainsKey(name))
             {
                 _foundMods.Add(mods[i]);
-                ProcessModule(mods[i]);
+                names.Add(name);
+                if (debugMode) { ProcessModule(mods[i]); }
             }
         }
-        Debug.LogFormat("[Allison Eckhart #{0}] Found {1} mods.", _moduleId, _foundMods.Count);
+        Debug.LogFormat("<Allison Eckhart #{0}> Found {1} mods: {2}", _moduleId, _foundMods.Count, names.ToArray().Join("; "));
+        while (_foundMods.Count > 10) 
+        {
+            int modIndex = Rnd.Range(0, _foundMods.Count);
+            _foundMods.RemoveAt(modIndex);
+            names.RemoveAt(modIndex);
+        }
+        Debug.LogFormat("[Allison Eckhart #{0}] Possessing {1} mods: {2}", _moduleId, _foundMods.Count, names.ToArray().Join("; "));
+        //TODO(?): If multiple Allison Eckharts are present, divy up the supported modules among the Allison Eckharts.
+        GeneratePrompt(_foundMods.Count);
         alreadyRan = true;
     }
 
@@ -64,12 +113,10 @@ public class AllisonEckhartScript : MonoBehaviour
             case "Allison Eckhart": break;
             case "0": SetText(usedMeshes[9], "ALLISON", 0.25f, 0.5f); SetText(usedMeshes[11], "ECKHART", 0.22f, 0.5f); break;
             case "3N+1": SetText(usedMeshes[2], "ALLISON", 0.666f, 1f); SetText(usedMeshes[0], "ECKHART", 0.555f, 1f); break;
-            case "8": SetText(usedMeshes[0], "ALLISON\nECKHART", 0.18f, 0.18f); break;
             case "A Message": SetText(usedMeshes[3], "ALLISON", 0.666f, 1f); SetText(usedMeshes[4], "ECKHART", 0.666f, 1f); break;
             case "ASCII Art": SetText(usedMeshes[36], "ALLISON\nECKHART", 0.8f, 0.5f); break;
             case "ASCII Maze": SetText(usedMeshes[6], "ALLISON", 0.2f, 0.5f); SetText(usedMeshes[5], "ECKHART", 0.1f, 0.25f); break;
             case "Accelerando": SetText(usedMeshes[0], "ALLISON\nECKHART", 0.4f, 0.5f); break;
-            case "Access Codes": SetText(usedMeshes[7], "ALLISON", 0.18f, 1f); SetText(usedMeshes[8], "ECKHART", 0.18f, 1f); break;
             case "Accumulation": SetText(usedMeshes[11], "ALLISON", 0.9f, 1f); SetText(usedMeshes[12], "ECKHART", 0.9f, 1f); break;
             case "Addition": SetText(usedMeshes[10], "ALLISON", 0.35f, 1f); SetText(usedMeshes[11], "ECKHART", 0.3f, 1f); break;
             case "Adjacent Letters": SetText(usedMeshes[1], "ALLISON\nECKHART", 0.8f, 0.8f); break;
@@ -83,7 +130,6 @@ public class AllisonEckhartScript : MonoBehaviour
             case "Ars Goetia Identification": SetText(usedMeshes[38], "ALLISON\nECKHART", 0.49f, 0.49f); break;
             case "Atbash Cipher": SetText(usedMeshes[0], "ALLISON\nECKHART", 0.696f, 0.696f); break;
             case "Audio Morse": SetText(usedMeshes[1], "ALLISON ECKHART", 1f, 1f); break;
-            case "Backdoor Hacking": SetText(usedMeshes[1], "ALLI", 1f, 1f); SetText(usedMeshes[2], "SON", 1f, 1f); SetText(usedMeshes[3], "ECK", 1f, 1f); SetText(usedMeshes[4], "HART", 1f, 1f); break;
             case "Backgrounds": SetText(usedMeshes[1], "ALLISON\nECKHART", 0.8f, 1f); break;
             case "Bartending": SetText(usedMeshes[5], "ALLISON", 0.909f, 1f); SetText(usedMeshes[6], "ECKHART", 0.882f, 1f); break;
             case "Base-1": SetText(usedMeshes[9], "ALLISON\nECKHART", 0.429f, 0.5f); break;
@@ -108,7 +154,6 @@ public class AllisonEckhartScript : MonoBehaviour
             case "Boozlesnap": SetText(usedMeshes[0], "ALLISON\nECKHART", -0.2f, -0.28f); break;
             case "Bowling": SetText(usedMeshes[6], "ALLISON\nECKHART", 0.8f, 0.6f); break;
             case "Boxing": SetText(usedMeshes[1], "A LLISON\nECKHART", 1f, 0.5f); break;
-            case "Brainf---": SetText(usedMeshes[11], "ALLISON", 0.5f, 1f); SetText(usedMeshes[10], "ECKHART", 0.5f, 1f); break;
             case "Breaktime": SetText(usedMeshes[0], "ALLISON\nECKHART", 0.5f, 0.5f); break;
             case "Bridge": SetText(usedMeshes[14], "ALLISON\nECKHART", 1f, 1f); break;
             case "Broken Buttons": SetText(usedMeshes[1], "ALLISON", 0.7f, 0.7f); SetText(usedMeshes[0], "ECKHART", 0.7f, 0.7f); break;
@@ -116,7 +161,7 @@ public class AllisonEckhartScript : MonoBehaviour
             case "CA-RPS": SetText(usedMeshes[0], "ALLISON", 1f, 1f); SetText(usedMeshes[1], "ECKHART", 1f, 1f); break;
             case "Caesar Cycle": SetText(usedMeshes[20], "A", 1f, 1f); SetText(usedMeshes[21], "L", 1f, 1f); SetText(usedMeshes[22], "L", 1f, 1f); SetText(usedMeshes[23], "I", 1f, 1f); SetText(usedMeshes[24], "S", 1f, 1f); SetText(usedMeshes[25], "O", 1f, 1f); SetText(usedMeshes[26], "N", 1f, 1f); SetText(usedMeshes[29], "E", 1f, 1f); SetText(usedMeshes[30], "C", 1f, 1f); SetText(usedMeshes[31], "K", 1f, 1f); SetText(usedMeshes[32], "H", 1f, 1f); SetText(usedMeshes[33], "A", 1f, 1f); SetText(usedMeshes[34], "R", 1f, 1f); SetText(usedMeshes[35], "T", 1f, 1f); break;
             case "Calculus": SetText(usedMeshes[2], "ALLISON\nECKHART", 1f, 1f); break;
-            case "Castor": SetText(usedMeshes[10], "ALLISON", 1f, 1f); SetText(usedMeshes[11], "ECKHART", 0.606f, 1f); break;
+           
             case "Catchphrase": SetText(usedMeshes[12], "ALLISON", 0.172f, 1f); SetText(usedMeshes[11], "ECKHART", 0.15f, 1f); break;
             case "Challenge & Contact": SetText(usedMeshes[2], "ALLISON\nECKHART", 0.6f, 0.6f); break;
             case "Chaotic Countdown": SetText(usedMeshes[14], "ALLI", 0.361f, 0.5f); SetText(usedMeshes[15], "SON", 0.361f, 0.5f); SetText(usedMeshes[16], "ECK", 0.361f, 0.5f); SetText(usedMeshes[17], "HART", 0.274f, 0.5f); break;
@@ -160,14 +205,12 @@ public class AllisonEckhartScript : MonoBehaviour
             case "Discolour Flash": SetText(usedMeshes[1], "ALLISON", 1f, 1f); SetText(usedMeshes[2], "ECKHART", 1f, 1f); break;
             case "Divisible Numbers": SetText(usedMeshes[1], "ALLISON", 0.514f, 1f); SetText(usedMeshes[2], "ECKHART", 0.514f, 1f); break;
             case "Dominoes": SetText(usedMeshes[0], "ALLISON ECKHART", 0.7f, 1f); break;
-            case "Don't Touch Anything": SetText(usedMeshes[0], "ALLISON\nECKHART", 0.455f, 1f); break;
             case "Double Color": SetText(usedMeshes[0], "ALLISON\nECKHART", 0.826f, 0.6f); break;
             case "Double Digits": SetText(usedMeshes[2], "ALLISON\nECKHART", 0.8f, 0.5f); break;
             case "Double Expert": SetText(usedMeshes[0], "ALLISON", 0.6f, 0.6f); SetText(usedMeshes[1], "ECKHART", 0.6f, 0.6f); break;
             case "Double Pitch": SetText(usedMeshes[16], "ALLISON", 0.222f, 1f); SetText(usedMeshes[18], "ECKHART", 0.167f, 1f); break;
             case "Dragon Energy": SetText(usedMeshes[2], "ALLISON\nECKHART", 0.8f, 0.6f); break;
             case "Dual Sequences": SetText(usedMeshes[8], "ALLISON\nECKHART", 0.171f, 0.357f); break;
-            case "Dumb Waiters": SetText(usedMeshes[7], "ALLISON", 1f, 1f); SetText(usedMeshes[15], "ECKHART", 1f, 1f); break;
             case "Eight": SetText(usedMeshes[0], "ALLISON\nECKHART", 0.7f, 0.48f); break;
             case "Emotiguy Identification": SetText(usedMeshes[40], "ALLISON\nECKHART", 0.557f, 0.6f); break;
             case "Encrypted Dice": SetText(usedMeshes[0], "ALLISON\nECKHART", 1f, 0.5f); break;
@@ -190,8 +233,6 @@ public class AllisonEckhartScript : MonoBehaviour
             case "FizzBuzz": SetText(usedMeshes[3], "ALLISON\nECKHART", 0.6f, 0.6f); break;
             case "Flags": SetText(usedMeshes[2], "ALLISON\nECKHART", 0.6f, 0.6f); break;
             case "Flavor Text": SetText(usedMeshes[0], "ALLISON", 0.38f, 1f); SetText(usedMeshes[1], "ECKHART", 0.34f, 1f); break;
-            case "Forget Enigma": SetText(usedMeshes[0], "A", 1f, 1f); SetText(usedMeshes[1], "L", 1f, 1f); SetText(usedMeshes[2], "L", 1f, 1f); SetText(usedMeshes[3], "I", 1f, 1f); SetText(usedMeshes[4], "S", 1f, 1f); SetText(usedMeshes[5], "O", 1f, 1f); SetText(usedMeshes[6], "N", 1f, 1f); SetText(usedMeshes[7], "E", 1f, 1f); SetText(usedMeshes[8], "C", 1f, 1f); SetText(usedMeshes[9], "K", 1f, 1f); SetText(usedMeshes[10], "H", 1f, 1f); SetText(usedMeshes[11], "A", 1f, 1f); SetText(usedMeshes[12], "R", 1f, 1f); SetText(usedMeshes[13], "T", 1f, 1f); break;
-            case "Four-Card Monte": SetText(usedMeshes[1], "ALLISON\nECKHART", 0.789f, 0.806f); break;
             case "Fruits": SetText(usedMeshes[0], "ALLISON\nECKHART", 0.715f, 0.5f); break;
             case "Functions": SetText(usedMeshes[10], "ALLISON", 0.25f, 1f); SetText(usedMeshes[11], "ECKHART", 0.25f, 1f); break;
             case "Game of Life Cruel": SetText(usedMeshes[0], "ALLISON", 1f, 1f); SetText(usedMeshes[1], "ECKHART", 1f, 1f); break;
@@ -199,7 +240,6 @@ public class AllisonEckhartScript : MonoBehaviour
             case "Generated Maze": SetText(usedMeshes[0], "ALLISON\nECKHART", 0.3f, 0.5f); break;
             case "Genetic Sequence": SetText(usedMeshes[4], "ALLISON", 0.733f, 1f); SetText(usedMeshes[5], "ECKHART", 0.733f, 1f); break;
             case "Geometry Dash": SetText(usedMeshes[0], "ALLISON", 1f, 1f); SetText(usedMeshes[1], "ECKHART", 0.9f, 1f); break;
-            
             case "Geometry": SetText(usedMeshes[2], "ALLISON\nECKHART", 1f, 1f); break;
             case "Golf": SetText(usedMeshes[2], "ALLISON\nECKHART", 1f, 1f); break;
             case "Greek Calculus": SetText(usedMeshes[11], "ALLISON", 1f, 1f); SetText(usedMeshes[17], "ECKHART", 1f, 1f); break;
@@ -233,14 +273,12 @@ public class AllisonEckhartScript : MonoBehaviour
             case "Kyudoku": SetText(usedMeshes[36], "ALLISON ECKHART", 1f, 1f); break;
             case "LED Math": SetText(usedMeshes[1], "ALLISON", 1f, 1f); SetText(usedMeshes[0], "ECKHART", 1f, 1f); break;
             case "LEGOs": SetText(usedMeshes[3], "ALLISON\nECKHART", 0.6f, 0.6f); break;
-            case "LOOK AT ME": SetText(usedMeshes[0], "ALLISON", 1f, 1f); SetText(usedMeshes[1], "ECKHART", 1f, 1f); break;
             case "Latin Hypercube": SetText(usedMeshes[1], "ALLI", 1f, 1f); SetText(usedMeshes[3], "SON", 1f, 1f); SetText(usedMeshes[5], "ECK", 1f, 1f); SetText(usedMeshes[7], "HART", 1f, 1f); break;
             case "Levenshtien Distance": SetText(usedMeshes[11], "ALLISON", 1f, 1f); SetText(usedMeshes[10], "ECKHART", 1f, 1f); break;
             case "Life Iteration": SetText(usedMeshes[0], "ALLISON", 1f, 1f); SetText(usedMeshes[1], "ECKHART", 1f, 1f); break;
             case "Line Equations": SetText(usedMeshes[16], "ALLISON", 1f, 1f); SetText(usedMeshes[19], "ECKHART", 1f, 1f); break;
             case "Lines of Code": SetText(usedMeshes[12], "ALLISON ECKHART", 1f, 1f); break;
             case "Logic": SetText(usedMeshes[16], "ALLISON\nECKHART", 0.6f, 0.5f); break;
-            case "Lunchtime": SetText(usedMeshes[1], "ALLISON ECKHART", 0.7f, 0.7f); break;
             case "Mahjong Quiz Easy": SetText(usedMeshes[0], "ALLISON", 1f, 1f); SetText(usedMeshes[1], "ECKHART", 1f, 1f); break;
             case "Mahjong Quiz Hard": SetText(usedMeshes[0], "ALLISON", 1f, 1f); SetText(usedMeshes[1], "ECKHART", 1f, 1f); break;
             case "Mahjong Quiz Scrambled": SetText(usedMeshes[0], "ALLISON", 1f, 1f); SetText(usedMeshes[1], "ECKHART", 1f, 1f); break;
@@ -303,7 +341,6 @@ public class AllisonEckhartScript : MonoBehaviour
             case "Papa's Pizzeria": SetText(usedMeshes[0], "ALLISON\nECKHART", 1f, 1f); break;
             case "Parliament": SetText(usedMeshes[0], "ALLISON", 1f, 1f); SetText(usedMeshes[1], "ECKHART", 1f, 1f); break;
             case "Partial Derivatives": SetText(usedMeshes[12], "ALLISON", 1f, 1f); SetText(usedMeshes[13], "ECKHART", 1f, 1f); break;
-            case "Password Destroyer": SetText(usedMeshes[2], "ALLISON", 1f, 1f); SetText(usedMeshes[1], "ECKHART", 1f, 1f); break;
             case "Pawns": SetText(usedMeshes[5], "ALLISON", 1f, 1f); SetText(usedMeshes[6], "ECKHART", 1f, 1f); break;
             case "Pickup Identification": SetText(usedMeshes[0], "ALLISON\nECKHART", 1f, 1f); break;
             case "Pigpen Cycle": SetText(usedMeshes[21], "A", 1f, 1f); SetText(usedMeshes[22], "L", 1f, 1f); SetText(usedMeshes[23], "L", 1f, 1f); SetText(usedMeshes[24], "I", 1f, 1f); SetText(usedMeshes[25], "S", 1f, 1f); SetText(usedMeshes[26], "O", 1f, 1f); SetText(usedMeshes[27], "N", 1f, 1f); SetText(usedMeshes[30], "E", 1f, 1f); SetText(usedMeshes[31], "C", 1f, 1f); SetText(usedMeshes[32], "K", 1f, 1f); SetText(usedMeshes[33], "H", 1f, 1f); SetText(usedMeshes[34], "A", 1f, 1f); SetText(usedMeshes[35], "R", 1f, 1f); SetText(usedMeshes[36], "T", 1f, 1f); break;
@@ -315,7 +352,6 @@ public class AllisonEckhartScript : MonoBehaviour
             case "Playfair Cycle": SetText(usedMeshes[0], "ALLISON", 1f, 1f); SetText(usedMeshes[1], "ECKHART", 1f, 1f); break;
             case "Plumbing": SetText(usedMeshes[0], "ALLISON ECKHART", 0.4f, 0.6f); break;
             case "Poker": SetText(usedMeshes[0], "ALLISON", 1f, 1f); SetText(usedMeshes[1], "ECKHART", 1f, 1f); break;
-            case "Pollux": SetText(usedMeshes[10], "ALLISON", 1f, 1f); SetText(usedMeshes[11], "ECKHART", 0.606f, 1f); break;
             case "Purchasing Properties": SetText(usedMeshes[0], "ALLISON\nECKHART", 1f, 1f); break;
             case "Puzzle Identification": SetText(usedMeshes[40], "ALLISON\nECKHART", 1f, 1f); break;
             case "Quaternions": SetText(usedMeshes[2], "ALLISON", 1f, 1f); SetText(usedMeshes[0], "ECKHART", 1f, 1f); break;
@@ -349,7 +385,6 @@ public class AllisonEckhartScript : MonoBehaviour
             case "Scalar Dials": SetText(usedMeshes[37], "ALLISON ECKHART", 1f, 1f); break;
             case "Schlag den Bomb": SetText(usedMeshes[34], "ALLISON ECKHART", 1f, 1f); break;
             case "Scipting": SetText(usedMeshes[23], "ALLISON ECKHART", 1f, 1f); break;
-            case "Scrabble Scramble": SetText(usedMeshes[6], "ALLISON ECKHART", 1f, 1f); break;
             case "Scratch-Off": SetText(usedMeshes[0], "ALLISON ECKHART", 1f, 1f); SetText(usedMeshes[1], "ALLISON ECKHART", 1f, 1f); break;
             case "Sequences": SetText(usedMeshes[13], "ALLISON", 1f, 1f); SetText(usedMeshes[16], "ECKHART", 1f, 1f); break;
             case "Shapes and Bombs": SetText(usedMeshes[2], "ALLISON", 1f, 1f); SetText(usedMeshes[3], "ECKHART", 1f, 1f); break;
@@ -403,13 +438,10 @@ public class AllisonEckhartScript : MonoBehaviour
             case "The Number": SetText(usedMeshes[11], "ALLISON", 1f, 1f); SetText(usedMeshes[12], "ECKHART", 1f, 1f); break;
             case "The Rule": SetText(usedMeshes[1], "ALLISON\nECKHART", 0.5f, 0.5f); break;
             case "The Stock Market": SetText(usedMeshes[17], "ALLISON\nECKHART", 1f, 1f); break;
-            case "The Swan": SetText(usedMeshes[12], "ALLISON\nECKHART", 0.6f, 0.7f); break;
             case "The Tile Maze": SetText(usedMeshes[53], "ALLISON", 1f, 1f); SetText(usedMeshes[54], "ECKHART", 1f, 1f); break;
             case "The cRule": SetText(usedMeshes[0], "ALLISON\nECKHART", 1f, 1f); break;
             case "Timezone": SetText(usedMeshes[13], "ALLISON\nECKHART", 1f, 1f); break;
-            case "Timing is Everything": SetText(usedMeshes[1], "ALLISON\nECKHART", 1f, 1f); break;
             case "Toon Enough": SetText(usedMeshes[0], "ALLISON", 0.7f, 0.7f); SetText(usedMeshes[1], "ECKHART", 0.7f, 0.7f); break;
-            case "Top 10 Numbers": SetText(usedMeshes[11], "ALLISON\nECKHART", 1f, 1f); break;
             case "Topsy Turvy": SetText(usedMeshes[2], "ALLISON\nECKHART", 1f, 1f); break;
             case "Totally Accurate Minecraft Simulator": SetText(usedMeshes[2], "ALLISON", 1f, 1f); SetText(usedMeshes[1], "ECKHART", 1f, 1f); break;
             case "Touch Transmission": SetText(usedMeshes[0], "ALLISON\nECKHART", 1f, 1f); break;
@@ -441,18 +473,36 @@ public class AllisonEckhartScript : MonoBehaviour
             default: if (debugMode) { for (int i = 0; i < usedMeshes.Length; i++) SetText(usedMeshes[i], i.ToString(), 0.5f, 0.5f); } break;
 
             //Unused =
+            // QUIRKY //             case "8": SetText(usedMeshes[0], "ALLISON\nECKHART", 0.18f, 0.18f); break;
             // GETS REMOVED //       case "1000 Words": SetText(usedMeshes[5], "ALLISON", 0.5f, 1f); SetText(usedMeshes[6], "ECKHART", 0.5f, 1f); break;
             // BUGGED //             case "14": SetText(usedMeshes[14], "ALLISON\nECKHART", 1f, 1f); break;
+			// QUIRKY //             case "Access Codes": SetText(usedMeshes[7], "ALLISON", 0.18f, 1f); SetText(usedMeshes[8], "ECKHART", 0.18f, 1f); break;
             // BUGGED //             case "Amnesia": SetText(usedMeshes[5], "ALLISON", 1f, 1f); SetText(usedMeshes[2], "ECKHART", 1f, 1f); break;
             // GETS CHANGED //       case "Antistress": SetText(usedMeshes[5], "ALLISON", 0.1f, 1f); SetText(usedMeshes[4], "ECKHART", 0.125f, 0.75f); break;
+			// QUIRKY //             case "Backdoor Hacking": SetText(usedMeshes[1], "ALLI", 1f, 1f); SetText(usedMeshes[2], "SON", 1f, 1f); SetText(usedMeshes[3], "ECK", 1f, 1f); SetText(usedMeshes[4], "HART", 1f, 1f); break;
+			// QUIRKY //             case "Brainf---": SetText(usedMeshes[11], "ALLISON", 0.5f, 1f); SetText(usedMeshes[10], "ECKHART", 0.5f, 1f); break;
             // DOES NOT WORK //      case "Broken Guitar Chords": SetText(usedMeshes[0], "ALLISON\nECKHART", 1f, 1f); break;
             // GETS CHANGED //       case "Burnout": SetText(usedMeshes[0], "ALLISON\nECKHART", 0.7f, 0.9f); break;
+			// QUIRKY //             case "Castor": SetText(usedMeshes[10], "ALLISON", 1f, 1f); SetText(usedMeshes[11], "ECKHART", 0.606f, 1f); break;
             // GETS CHANGED //       case "Dialtones": SetText(usedMeshes[0], "ALLISON\nECKHART", 1f, 1f); break;
             // BREAKS MOD //         case "DNA Mutation": SetText(usedMeshes[0], "ALLI", 0.333f, 1f); SetText(usedMeshes[1], "SON", 0.333f, 1f); SetText(usedMeshes[2], "ECK", 0.333f, 1f); SetText(usedMeshes[3], "HART", 0.266f, 1f); break;
+			// QUIRKY //             case "Don't Touch Anything": SetText(usedMeshes[0], "ALLISON\nECKHART", 0.455f, 1f); break;
+            // BAD IDEA //           case "Dumb Waiters": SetText(usedMeshes[7], "ALLISON", 1f, 1f); SetText(usedMeshes[15], "ECKHART", 1f, 1f); break;
             // BUGGED //             case "Enigma Cycle": SetText(usedMeshes[19], "A", 1f, 1f); SetText(usedMeshes[20], "L", 1f, 1f); SetText(usedMeshes[21], "L", 1f, 1f); SetText(usedMeshes[22], "I", 1f, 1f); SetText(usedMeshes[23], "S", 1f, 1f); SetText(usedMeshes[24], "O", 1f, 1f); SetText(usedMeshes[25], "N", 1f, 1f); SetText(usedMeshes[28], "E", 1f, 1f); SetText(usedMeshes[29], "C", 1f, 1f); SetText(usedMeshes[30], "K", 1f, 1f); SetText(usedMeshes[31], "H", 1f, 1f); SetText(usedMeshes[32], "A", 1f, 1f); SetText(usedMeshes[33], "R", 1f, 1f); SetText(usedMeshes[34], "T", 1f, 1f); break;
             // NOT ALWAYS VISIBLE // case "Faulty Sink": SetText(usedMeshes[0], "ALLISON", 1f, 1f); SetText(usedMeshes[1], "ECKHART", 1f, 1f); break;
             // GETS REMOVED //       case "Finite Loop": SetText(usedMeshes[1], "ALLISON\nECKHART", 1f, 1f); break;
+			// QUIRKY //             case "Forget Enigma": SetText(usedMeshes[0], "A", 1f, 1f); SetText(usedMeshes[1], "L", 1f, 1f); SetText(usedMeshes[2], "L", 1f, 1f); SetText(usedMeshes[3], "I", 1f, 1f); SetText(usedMeshes[4], "S", 1f, 1f); SetText(usedMeshes[5], "O", 1f, 1f); SetText(usedMeshes[6], "N", 1f, 1f); SetText(usedMeshes[7], "E", 1f, 1f); SetText(usedMeshes[8], "C", 1f, 1f); SetText(usedMeshes[9], "K", 1f, 1f); SetText(usedMeshes[10], "H", 1f, 1f); SetText(usedMeshes[11], "A", 1f, 1f); SetText(usedMeshes[12], "R", 1f, 1f); SetText(usedMeshes[13], "T", 1f, 1f); break;
+			// QUIRKY //             case "Four-Card Monte": SetText(usedMeshes[1], "ALLISON\nECKHART", 0.789f, 0.806f); break;
             // BUGGED //             case "Functional Mapping": SetText(usedMeshes[6], "ALLISON", 1f, 1f); SetText(usedMeshes[7], "ECKHART", 1f, 1f); break;
+			// QUIRKY //             case "LOOK AT ME": SetText(usedMeshes[0], "ALLISON", 1f, 1f); SetText(usedMeshes[1], "ECKHART", 1f, 1f); break;
+			// QUIRKY //             case "Lunchtime": SetText(usedMeshes[1], "ALLISON ECKHART", 0.7f, 0.7f); break;
+			// QUIRKY //             case "Password Destroyer": SetText(usedMeshes[2], "ALLISON", 1f, 1f); SetText(usedMeshes[1], "ECKHART", 1f, 1f); break;
+			// QUIRKY //             case "Pollux": SetText(usedMeshes[10], "ALLISON", 1f, 1f); SetText(usedMeshes[11], "ECKHART", 0.606f, 1f); break;
+			// QUIRKY //             case "Scrabble Scramble": SetText(usedMeshes[6], "ALLISON ECKHART", 1f, 1f); break;
+			// QUIRKY //             case "The Swan": SetText(usedMeshes[12], "ALLISON\nECKHART", 0.6f, 0.7f); break;
+			// QUIRKY //             case "Timing is Everything": SetText(usedMeshes[1], "ALLISON\nECKHART", 1f, 1f); break;
+			// QUIRKY //             case "Top 10 Numbers": SetText(usedMeshes[11], "ALLISON\nECKHART", 1f, 1f); break;
+			
         }
     }
 

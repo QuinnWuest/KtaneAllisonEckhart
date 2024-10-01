@@ -12,7 +12,7 @@
 
 let protocol = location.protocol;
 let e = document.createElement("script");
-e.src = "../Manual/js/jquery.3.1.1.min.js";
+e.src = "../HTML/js/jquery.3.1.1.min.js";
 e.onload = function()
 {
     $(function()
@@ -174,7 +174,8 @@ e.onload = function()
                     ".ktane-highlight-svg { width: 50px; height: 50px; }" +
                     ".ktane-highlight-pen { fill: !0!; }" +
                     ".ktane-highlight-btn { position: fixed; top: 5px; width: 50px; height: 50px; border: 3px solid transparent; border-radius: 10px; }" +
-                    ".ktane-highlight-btn.selected { border-color: #4c6; }")
+                    ".ktane-highlight-btn.selected { border-color: #4c6; }" +
+                    "@media print { .ktane-highlight-btn { display: none; }  }")
                     .replace(/!0!/g, colors[color].color));
             };
 
@@ -410,7 +411,7 @@ e.onload = function()
             });
         };
 
-        $("td:not(.nohighlight), th:not(.nohighlight), li:not(.nohighlight), .highlightable, .stroke-highlightable").each(function() {
+        $("td:not(.nohighlight, .corner), th:not(.nohighlight, .corner), li:not(.nohighlight), .highlightable, .stroke-highlightable").each(function() {
             makeHighlightable($(this));
         });
 
