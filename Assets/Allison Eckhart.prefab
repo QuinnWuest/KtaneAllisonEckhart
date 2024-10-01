@@ -947,7 +947,7 @@ GameObject:
   - component: {fileID: 114960229496981458}
   - component: {fileID: 114736839973184490}
   m_Layer: 0
-  m_Name: AllisonEckhart
+  m_Name: Allison Eckhart
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4190,7 +4190,7 @@ TextMesh:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1449718518742734}
-  m_Text: Hello World
+  m_Text: "COMPUTE 11010100\nLOGICAL EXCLUSIVE OR \n01110101 THEN CLEAR"
   m_OffsetZ: 0
   m_CharacterSize: 1
   m_LineSpacing: 1
@@ -5122,7 +5122,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Module: {fileID: 114943217843082284}
-  BombInfo: {fileID: 114254322482168384}
+  Bomb: {fileID: 114254322482168384}
   Audio: {fileID: 114960229496981458}
 --- !u!114 &114763940450797378
 MonoBehaviour:
